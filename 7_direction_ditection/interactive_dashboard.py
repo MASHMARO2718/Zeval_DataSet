@@ -241,7 +241,7 @@ app.layout = dbc.Container([
     ], className="mb-4"),
     
     # Store component for storing selected camera state
-    dcc.Store(id='selected-camera-store'),
+    dcc.Store(id='selected-camera-store', data='CapturedFrames_-1.0_0.5_-3.0'),
     
 ], fluid=True)
 
@@ -949,4 +949,15 @@ if __name__ == '__main__':
     print("="*60 + "\n")
     
     app.run(debug=True, port=8050)
+
+
+# 繧ｫ繝｡繝ｩ繝峨Ο繝・・繝繧ｦ繝ｳ縺九ｉStore縺ｸ縺ｮ蜷梧悄
+@app.callback(
+    Output('selected-camera-store', 'data', allow_duplicate=True),
+    Input('camera-dropdown', 'value'),
+    prevent_initial_call=True
+)
+def sync_camera_dropdown_to_store(camera):
+    return camera
+
 
