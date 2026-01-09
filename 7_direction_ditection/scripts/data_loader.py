@@ -64,15 +64,31 @@ class DataLoader:
         
         Args:
             camera_position: 例: "CapturedFrames_-1.0_0.5_-3.0"
-            y_range: 例: "Y=0.5,1.5" (Noneの場合はデフォルト)
+            y_range: 例: "Y=0.5,1.5" (Noneの場合は自動判定)
             
         Returns:
             pd.DataFrame: MediaPipeデータ
         """
+        # y_rangeが指定されていない場合、カメラ名からY座標を抽出して判定
         if y_range is None:
-            y_range = config.DEFAULT_Y_RANGE
+            # カメラ名: CapturedFrames_X_Y_Z からY座標を抽出
+            try:
+                parts = camera_position.replace('CapturedFrames_', '').split('_')
+                y_coord = float(parts[1])
+                
+                # Y座標から適切なディレクトリを選択
+                if y_coord in [0.5, 1.5]:
+                    y_range = "Y=0.5,1.5"
+                elif y_coord in [1.0, 2.0]:
+                    y_range = "Y=1.0.2.0"
+                else:
+                    self.logger.warning(f"Unknown Y coordinate {y_coord}, using default")
+                    y_range = config.DEFAULT_Y_RANGE
+            except (IndexError, ValueError) as e:
+                self.logger.warning(f"Failed to parse Y from camera name: {e}, using default")
+                y_range = config.DEFAULT_Y_RANGE
         
-        self.logger.step(1, f"Loading MediaPipe data: {camera_position}")
+        self.logger.step(1, f"Loading MediaPipe data: {camera_position} from {y_range}")
         
         mp_dir = self.mp_dir / y_range
         csv_file = mp_dir / f"{camera_position}.csv"

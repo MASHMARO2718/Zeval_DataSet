@@ -165,10 +165,16 @@ def main():
     gt_df = loader.load_ground_truth()
     logger.info(f"GroundTruth: {len(gt_df)} rows")
     
-    # カメラ位置取得
-    logger.step(3, "Get camera positions")
-    cameras = loader.list_available_cameras(y_range=config.DEFAULT_Y_RANGE)
-    logger.info(f"Found {len(cameras)} cameras")
+    # カメラ位置取得（全てのY範囲）
+    logger.step(3, "Get camera positions from all Y ranges")
+    all_cameras = []
+    for y_range in config.Y_RANGES:
+        cameras_in_range = loader.list_available_cameras(y_range=y_range)
+        all_cameras.extend(cameras_in_range)
+        logger.info(f"Found {len(cameras_in_range)} cameras in {y_range}")
+    
+    cameras = all_cameras
+    logger.info(f"Total cameras: {len(cameras)}")
     
     # 処理するカメラ数を制限（テスト用）
     # 全データを処理する場合はこの行をコメントアウト
