@@ -71,27 +71,30 @@ app.title = "MotionTrack Data Visualization"
 app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
-            html.H1("🎯 MotionTrack - インタラクティブ可視化ダッシュボード", 
-                   className="text-center mb-4 mt-4")
+            html.H2("🎯 MotionTrack - インタラクティブ可視化ダッシュボード", 
+                   className="text-center mb-3 mt-3",
+                   style={'font-size': '1.5rem'})
         ])
     ]),
     
+    # メインコントロールエリア（左：コントロール、右：カメラマップ）
     dbc.Row([
+        # 左側：全てのコントロール
         dbc.Col([
+            # データ概要
             dbc.Card([
-                dbc.CardHeader("📊 データ概要"),
+                dbc.CardHeader("📊 データ概要", style={'padding': '0.5rem 1rem', 'font-size': '0.9rem'}),
                 dbc.CardBody([
-                    html.P(f"総データポイント: {len(df_detailed):,}"),
-                    html.P(f"フレーム数: {df_detailed['frame_id'].nunique()}"),
-                    html.P(f"カメラ数: {df_detailed['camera'].nunique()}"),
-                    html.P(f"関節数: {df_detailed['joint'].nunique()}"),
-                ])
-            ])
-        ], width=3),
-        
-        dbc.Col([
+                    html.P(f"総データポイント: {len(df_detailed):,}", style={'margin-bottom': '0.3rem', 'font-size': '0.85rem'}),
+                    html.P(f"フレーム数: {df_detailed['frame_id'].nunique()}", style={'margin-bottom': '0.3rem', 'font-size': '0.85rem'}),
+                    html.P(f"カメラ数: {df_detailed['camera'].nunique()}", style={'margin-bottom': '0.3rem', 'font-size': '0.85rem'}),
+                    html.P(f"関節数: {df_detailed['joint'].nunique()}", style={'margin-bottom': '0', 'font-size': '0.85rem'}),
+                ], style={'padding': '0.75rem 1rem'})
+            ], className="mb-2"),
+            
+            # フレーム選択
             dbc.Card([
-                dbc.CardHeader("⚙️ フレーム選択"),
+                dbc.CardHeader("⚙️ フレーム選択", style={'padding': '0.5rem 1rem', 'font-size': '0.9rem'}),
                 dbc.CardBody([
                     dcc.Dropdown(
                         id='frame-dropdown',
@@ -100,13 +103,12 @@ app.layout = dbc.Container([
                         value=20,
                         clearable=False
                     )
-                ])
-            ])
-        ], width=3),
-        
-        dbc.Col([
+                ], style={'padding': '0.75rem 1rem'})
+            ], className="mb-2"),
+            
+            # カメラ高さ選択
             dbc.Card([
-                dbc.CardHeader("📐 カメラ高さ (Y座標)"),
+                dbc.CardHeader("📐 カメラ高さ (Y座標)", style={'padding': '0.5rem 1rem', 'font-size': '0.9rem'}),
                 dbc.CardBody([
                     dcc.Dropdown(
                         id='y-coordinate-dropdown',
@@ -116,59 +118,24 @@ app.layout = dbc.Container([
                             {'label': 'Y = 1.5', 'value': 1.5},
                             {'label': 'Y = 2.0', 'value': 2.0},
                         ],
-                        value=0.5,  # デフォルト
+                        value=0.5,
                         clearable=False
                     )
-                ])
-            ])
-        ], width=3),
-        
-        dbc.Col([
-            dbc.Card([
-                dbc.CardHeader("📍 選択中のカメラ"),
-                dbc.CardBody([
-                    html.Div(id='selected-camera-display', 
-                            children="マップから選択してください",
-                            style={'font-size': '0.9em', 'color': '#666'})
-                ])
-            ])
-        ], width=3),
-    ], className="mb-4"),
-    
-    # カメラマップ
-    dbc.Row([
-        dbc.Col([
-            dbc.Card([
-                dbc.CardHeader("🗺️ カメラ位置選択マップ (上から見た図: XZ平面)"),
-                dbc.CardBody([
-                    dcc.Graph(
-                        id='camera-map-graph',
-                        config={'displayModeBar': False},
-                        style={'height': '500px'}
-                    ),
-                    html.Div([
-                        html.Span("🟢 データあり (クリック可能)", style={'margin-right': '20px'}),
-                        html.Span("⚪ データなし", style={'margin-right': '20px'}),
-                        html.Span("🟡 選択中")
-                    ], style={'text-align': 'center', 'margin-top': '10px', 'font-size': '0.9em'})
-                ])
-            ])
-        ], width=12),
-    ], className="mb-4"),
-    
-    # 折りたたみ可能なカメラドロップダウン
-    dbc.Row([
-        dbc.Col([
+                ], style={'padding': '0.75rem 1rem'})
+            ], className="mb-2"),
+            
+            # 折りたたみ可能なカメラドロップダウン
             dbc.Button(
-                "📷 詳細カメラ選択を表示/非表示",
+                "📷 詳細カメラ選択",
                 id="collapse-button",
-                className="mb-3",
+                className="mb-2",
                 size="sm",
-                color="secondary"
+                color="secondary",
+                outline=True
             ),
             dbc.Collapse(
                 dbc.Card([
-                    dbc.CardHeader("📷 カメラ手動選択（詳細）"),
+                    dbc.CardHeader("📷 カメラ手動選択（詳細）", style={'padding': '0.5rem 1rem', 'font-size': '0.9rem'}),
                     dbc.CardBody([
                         dcc.Dropdown(
                             id='camera-dropdown',
@@ -176,13 +143,32 @@ app.layout = dbc.Container([
                             value=None,
                             clearable=False
                         )
-                    ])
+                    ], style={'padding': '0.75rem 1rem'})
                 ]),
                 id="camera-dropdown-collapse",
                 is_open=False
-            )
-        ], width=12),
-    ], className="mb-4"),
+            ),
+        ], width=6),
+        
+        # 右側：カメラマップ
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader("🗺️ カメラ位置選択 (XZ平面)", style={'padding': '0.5rem 1rem', 'font-size': '0.9rem'}),
+                dbc.CardBody([
+                    dcc.Graph(
+                        id='camera-map-graph',
+                        config={'displayModeBar': False},
+                        style={'height': '530px'}
+                    ),
+                    html.Div([
+                        html.Span("🟢 データあり", style={'margin-right': '15px', 'font-size': '0.85rem'}),
+                        html.Span("⚪ データなし", style={'margin-right': '15px', 'font-size': '0.85rem'}),
+                        html.Span("🟡 選択中", style={'font-size': '0.85rem'})
+                    ], style={'text-align': 'center', 'margin-top': '0.5rem'})
+                ], style={'padding': '0.75rem 1rem'})
+            ])
+        ], width=6),
+    ], className="mb-3"),
     
     dbc.Row([
         dbc.Col([
@@ -260,7 +246,6 @@ app.layout = dbc.Container([
 @app.callback(
     Output('camera-map-graph', 'figure'),
     Output('selected-camera-store', 'data'),
-    Output('selected-camera-display', 'children'),
     Input('frame-dropdown', 'value'),
     Input('y-coordinate-dropdown', 'value'),
     Input('camera-map-graph', 'clickData'),
@@ -402,18 +387,11 @@ def update_camera_map(frame_id, y_coord, click_data, current_selection):
         ),
         showlegend=False,
         hovermode='closest',
-        height=500,
+        height=530,
         plot_bgcolor='white'
     )
     
-    # 選択中のカメラ表示テキスト
-    if selected_camera:
-        sel_x, sel_y, sel_z = parse_camera_coordinates(selected_camera)
-        display_text = f"📍 {selected_camera} (X:{sel_x}, Y:{sel_y}, Z:{sel_z})"
-    else:
-        display_text = "マップから選択してください"
-    
-    return fig, selected_camera, display_text
+    return fig, selected_camera
 
 
 # カメラリストを更新（折りたたみ用）
