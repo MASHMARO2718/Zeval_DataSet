@@ -1,4 +1,4 @@
-"""
+﻿"""
 インタラクティブ可視化ダッシュボード
 Plotly Dashを使用して全データをインタラクティブに表示
 """
@@ -573,7 +573,7 @@ def update_skeleton_gt(frame_id, camera):
         y=df_no_hip['gt_y'],
         z=df_no_hip['gt_z'],
         mode='markers+text',
-        marker=dict(size=8, color='darkblue'),
+        marker=dict(size=5, color='darkblue'),
         text=df_no_hip['joint'],
         textposition='top center',
         textfont=dict(size=8),
@@ -585,21 +585,68 @@ def update_skeleton_gt(frame_id, camera):
     fig.add_trace(go.Scatter3d(
         x=[0], y=[0], z=[0],
         mode='markers',
-        marker=dict(size=12, color='red', symbol='diamond'),
+        marker=dict(size=8, color='red', symbol='diamond'),
         name='HIP (原点)',
         hovertemplate='<b>HIP CENTER</b><br>X: 0<br>Y: 0<br>Z: 0<extra></extra>'
     ))
     
+    # データの範囲を取得
+    all_coords = list(coords.values())
+    if all_coords:
+        x_vals = [c[0] for c in all_coords]
+        y_vals = [c[1] for c in all_coords]
+        z_vals = [c[2] for c in all_coords]
+        
+        # 範囲を計算（余裕を持たせる）
+        x_range = [min(x_vals) - 0.5, max(x_vals) + 0.5]
+        y_range = [min(y_vals) - 0.5, max(y_vals) + 0.5]
+        z_range = [min(z_vals) - 0.5, max(z_vals) + 0.5]
+    else:
+        x_range = [-1, 1]
+        y_range = [-1, 1]
+        z_range = [-1, 1]
+    
     fig.update_layout(
         scene=dict(
-            xaxis_title='X',
-            yaxis_title='Y',
-            zaxis_title='Z',
-            aspectmode='data'
+            xaxis=dict(
+                title='X (m)',
+                backgroundcolor="rgb(240, 240, 240)",
+                gridcolor="white",
+                showbackground=True,
+                range=x_range,
+                dtick=0.2
+            ),
+            yaxis=dict(
+                title='Y (m)',
+                backgroundcolor="rgb(240, 240, 240)",
+                gridcolor="white",
+                showbackground=True,
+                range=y_range,
+                dtick=0.2
+            ),
+            zaxis=dict(
+                title='Z (m)',
+                backgroundcolor="rgb(240, 240, 240)",
+                gridcolor="white",
+                showbackground=True,
+                range=z_range,
+                dtick=0.2
+            ),
+            aspectmode='cube',
+            camera=dict(
+                eye=dict(x=1.5, y=1.5, z=1.5),
+                center=dict(x=0, y=0, z=0),
+                up=dict(x=0, y=1, z=0)
+            )
         ),
-        title=f"GroundTruth 骨格 - Frame {frame_id}",
+        title=dict(
+            text=f"GroundTruth 骨格 - Frame {frame_id}<br><sub>マウスドラッグで回転 | ホイールでズーム | 右クリックドラッグで移動</sub>",
+            x=0.5,
+            xanchor='center'
+        ),
         showlegend=True,
-        hovermode='closest'
+        hovermode='closest',
+        margin=dict(l=0, r=0, t=60, b=0)
     )
     
     return fig
@@ -677,7 +724,7 @@ def update_skeleton_mp(frame_id, camera):
         y=df_no_hip['mp_y'],
         z=df_no_hip['mp_z'],
         mode='markers+text',
-        marker=dict(size=8, color='darkred'),
+        marker=dict(size=5, color='darkred'),
         text=df_no_hip['joint'],
         textposition='top center',
         textfont=dict(size=8),
@@ -689,21 +736,68 @@ def update_skeleton_mp(frame_id, camera):
     fig.add_trace(go.Scatter3d(
         x=[0], y=[0], z=[0],
         mode='markers',
-        marker=dict(size=12, color='orange', symbol='diamond'),
+        marker=dict(size=8, color='orange', symbol='diamond'),
         name='HIP (原点)',
         hovertemplate='<b>HIP CENTER</b><br>X: 0<br>Y: 0<br>Z: 0<extra></extra>'
     ))
     
+    # データの範囲を取得
+    all_coords = list(coords.values())
+    if all_coords:
+        x_vals = [c[0] for c in all_coords]
+        y_vals = [c[1] for c in all_coords]
+        z_vals = [c[2] for c in all_coords]
+        
+        # 範囲を計算（余裕を持たせる）
+        x_range = [min(x_vals) - 0.5, max(x_vals) + 0.5]
+        y_range = [min(y_vals) - 0.5, max(y_vals) + 0.5]
+        z_range = [min(z_vals) - 0.5, max(z_vals) + 0.5]
+    else:
+        x_range = [-1, 1]
+        y_range = [-1, 1]
+        z_range = [-1, 1]
+    
     fig.update_layout(
         scene=dict(
-            xaxis_title='X',
-            yaxis_title='Y',
-            zaxis_title='Z',
-            aspectmode='data'
+            xaxis=dict(
+                title='X',
+                backgroundcolor="rgb(255, 240, 240)",
+                gridcolor="white",
+                showbackground=True,
+                range=x_range,
+                dtick=0.2
+            ),
+            yaxis=dict(
+                title='Y',
+                backgroundcolor="rgb(255, 240, 240)",
+                gridcolor="white",
+                showbackground=True,
+                range=y_range,
+                dtick=0.2
+            ),
+            zaxis=dict(
+                title='Z',
+                backgroundcolor="rgb(255, 240, 240)",
+                gridcolor="white",
+                showbackground=True,
+                range=z_range,
+                dtick=0.2
+            ),
+            aspectmode='cube',
+            camera=dict(
+                eye=dict(x=1.5, y=1.5, z=1.5),
+                center=dict(x=0, y=0, z=0),
+                up=dict(x=0, y=1, z=0)
+            )
         ),
-        title=f"MediaPipe 骨格 - Frame {frame_id}",
+        title=dict(
+            text=f"MediaPipe 骨格 - Frame {frame_id}<br><sub>マウスドラッグで回転 | ホイールでズーム | 右クリックドラッグで移動</sub>",
+            x=0.5,
+            xanchor='center'
+        ),
         showlegend=True,
-        hovermode='closest'
+        hovermode='closest',
+        margin=dict(l=0, r=0, t=60, b=0)
     )
     
     return fig
