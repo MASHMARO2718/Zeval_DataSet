@@ -634,7 +634,7 @@ def update_skeleton_gt(frame_id, camera):
             ),
             aspectmode='cube',
             camera=dict(
-                eye=dict(x=1.5, y=1.5, z=1.5),
+                eye=dict(x=2.0, y=2.5, z=2.0),
                 center=dict(x=0, y=0, z=0),
                 up=dict(x=0, y=1, z=0)
             )
@@ -785,7 +785,7 @@ def update_skeleton_mp(frame_id, camera):
             ),
             aspectmode='cube',
             camera=dict(
-                eye=dict(x=1.5, y=1.5, z=1.5),
+                eye=dict(x=2.0, y=2.5, z=2.0),
                 center=dict(x=0, y=0, z=0),
                 up=dict(x=0, y=1, z=0)
             )
