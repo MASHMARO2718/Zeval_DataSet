@@ -170,17 +170,7 @@ app.layout = dbc.Container([
         ], width=6),
     ], className="mb-3"),
     
-    dbc.Row([
-        dbc.Col([
-            dbc.Card([
-                dbc.CardHeader("📈 フレーム・カメラ別角度誤差"),
-                dbc.CardBody([
-                    dcc.Graph(id='frame-camera-error-graph', style={'height': '400px'})
-                ])
-            ])
-        ], width=12),
-    ], className="mb-4"),
-    
+    # 3D骨格表示（最優先で表示）
     dbc.Row([
         dbc.Col([
             dbc.Card([
@@ -199,6 +189,17 @@ app.layout = dbc.Container([
                 ])
             ])
         ], width=6),
+    ], className="mb-4"),
+    
+    dbc.Row([
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader("📈 フレーム・カメラ別角度誤差"),
+                dbc.CardBody([
+                    dcc.Graph(id='frame-camera-error-graph', style={'height': '400px'})
+                ])
+            ])
+        ], width=12),
     ], className="mb-4"),
     
     dbc.Row([
