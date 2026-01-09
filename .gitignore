@@ -14,7 +14,8 @@
 4_MAE_HEATMAP/
 5_max_angle_error/
 6_Error_transition_for_each_frame/
-7_direction_ditection/
+7_direction_ditection/output/
+7_direction_ditection/venv/
 
 # Python関連
 __pycache__/
