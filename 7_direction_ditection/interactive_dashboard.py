@@ -27,6 +27,10 @@ df_detailed = pd.read_csv(output_dir / "detailed_results.csv")
 df_summary = pd.read_csv(output_dir / "frame_camera_summary.csv")
 df_joint = pd.read_csv(output_dir / "joint_summary.csv")
 
+# GroundTruthデータも読み込み（ボット位置表示用）
+loader = DataLoader()
+gt_df = loader.load_ground_truth()
+
 print(f"Loaded {len(df_detailed)} detailed records")
 print(f"Frames: {df_detailed['frame_id'].nunique()}, Cameras: {df_detailed['camera'].nunique()}")
 
@@ -163,7 +167,8 @@ app.layout = dbc.Container([
                     html.Div([
                         html.Span("🟢 データあり", style={'margin-right': '15px', 'font-size': '0.85rem'}),
                         html.Span("⚪ データなし", style={'margin-right': '15px', 'font-size': '0.85rem'}),
-                        html.Span("🟡 選択中", style={'font-size': '0.85rem'})
+                        html.Span("🟡 選択中", style={'margin-right': '15px', 'font-size': '0.85rem'}),
+                        html.Span("🔴 ボット位置", style={'font-size': '0.85rem'})
                     ], style={'text-align': 'center', 'margin-top': '0.5rem'})
                 ], style={'padding': '0.75rem 1rem'})
             ])
@@ -265,9 +270,23 @@ def update_camera_map(frame_id, y_coord, click_data, current_selection):
     
     for _, row in df_frame_y.iterrows():
         x, y, z = parse_camera_coordinates(row['camera'])
-        if x is not None and abs(y - y_coord) < 0.1:  # Y座標が一致するもの
+        # Y座標の比較を緩和（浮動小数点の誤差を考慮）
+        if x is not None and abs(y - y_coord) < 0.25:  # 0.1から0.25に変更
             camera_coords.append({'x': x, 'z': z, 'camera': row['camera']})
             camera_lookup[(x, z)] = row['camera']
+    
+    # GroundTruthから腰の位置を取得（ボットの位置）
+    bot_position = None
+    try:
+        gt_frame = gt_df[gt_df['Frame'] == frame_id]
+        if len(gt_frame) > 0:
+            # Hips（腰）の位置を取得
+            if 'Hips_X' in gt_frame.columns and 'Hips_Z' in gt_frame.columns:
+                bot_x = float(gt_frame['Hips_X'].values[0])
+                bot_z = float(gt_frame['Hips_Z'].values[0])
+                bot_position = (bot_x, bot_z)
+    except Exception as e:
+        print(f"Failed to get bot position: {e}")
     
     # すべての可能なカメラ位置を生成（-5から5まで1刻み）
     all_x = np.arange(-6, 7, 1)  # -6から6まで
@@ -357,7 +376,7 @@ def update_camera_map(frame_id, y_coord, click_data, current_selection):
     # 選択中（黄色）
     if selected_camera:
         sel_x, sel_y, sel_z = parse_camera_coordinates(selected_camera)
-        if sel_x is not None and abs(sel_y - y_coord) < 0.1:
+        if sel_x is not None and abs(sel_y - y_coord) < 0.25:  # 0.1から0.25に変更
             fig.add_trace(go.Scatter(
                 x=[sel_x],
                 y=[sel_z],
@@ -368,6 +387,19 @@ def update_camera_map(frame_id, y_coord, click_data, current_selection):
                 hovertemplate=f'<b>選択中</b><br>X: {sel_x}<br>Z: {sel_z}<br>{selected_camera}<extra></extra>',
                 showlegend=False
             ))
+    
+    # ボットの位置（赤い点）
+    if bot_position:
+        fig.add_trace(go.Scatter(
+            x=[bot_position[0]],
+            y=[bot_position[1]],
+            mode='markers',
+            marker=dict(size=18, color='red', symbol='circle', 
+                       line=dict(width=2, color='darkred')),
+            name='ボット位置',
+            hovertemplate=f'<b>ボット位置 (Frame {frame_id})</b><br>X: {bot_position[0]:.2f}<br>Z: {bot_position[1]:.2f}<extra></extra>',
+            showlegend=False
+        ))
     
     fig.update_layout(
         xaxis_title="Camera X",
