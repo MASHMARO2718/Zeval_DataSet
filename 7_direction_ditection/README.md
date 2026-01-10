@@ -92,3 +92,5 @@ MP_DIR = BASE_DIR / "2_medidapipe_proccesed"
 
 各テストは独立して実行可能で、前のステップが成功してから次に進めます。
 
+
+

@@ -456,3 +456,5 @@ if __name__ == "__main__":
     print(f"\n✅ Test completed. Check logs: {config.LOG_DIR / 'latest.log'}")
     print(f"✅ HTML files: {config.HTML_DIR}")
 
+
+

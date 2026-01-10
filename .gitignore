@@ -1,27 +1,29 @@
-# 画像ファイル
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.bmp
-*.tiff
-*.webp
+# 画像ファイル（全ディレクトリ）
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.bmp
+**/*.tiff
+**/*.webp
 
-# 出力ディレクトリ
+# 動画ファイル
+**/*.mp4
+**/*.avi
+**/*.mov
+**/*.mkv
+
+# 写真出力ディレクトリは全て除外（サイズが大きいため）
 1_Output_Photos/
-2_medidapipe_proccesed/
-3_Cal_MAE/
-4_MAE_HEATMAP/
-5_max_angle_error/
-6_Error_transition_for_each_frame/
 
-# 7_direction_ditectionの出力（画像以外は除外しない）
-7_direction_ditection/output/**/*.png
-7_direction_ditection/output/**/*.jpg
-7_direction_ditection/output/**/*.jpeg
-7_direction_ditection/output/debug_data/
-7_direction_ditection/output/logs/
-7_direction_ditection/venv/
+# デバッグデータとログは除外
+**/debug_data/
+**/logs/
+*.log
+
+# 仮想環境
+**/venv/
+**/.venv/
 
 # Python関連
 __pycache__/

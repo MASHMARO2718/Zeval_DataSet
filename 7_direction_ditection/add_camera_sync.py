@@ -35,3 +35,5 @@ with open('interactive_dashboard.py', 'w', encoding='utf-8') as f:
 
 print("✓ カメラドロップダウン同期コールバックを追加しました")
 
+
+
