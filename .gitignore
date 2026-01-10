@@ -14,7 +14,13 @@
 4_MAE_HEATMAP/
 5_max_angle_error/
 6_Error_transition_for_each_frame/
-7_direction_ditection/output/
+
+# 7_direction_ditectionの出力（画像以外は除外しない）
+7_direction_ditection/output/**/*.png
+7_direction_ditection/output/**/*.jpg
+7_direction_ditection/output/**/*.jpeg
+7_direction_ditection/output/debug_data/
+7_direction_ditection/output/logs/
 7_direction_ditection/venv/
 
 # Python関連
