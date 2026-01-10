@@ -94,3 +94,4 @@ MP_DIR = BASE_DIR / "2_medidapipe_proccesed"
 
 
 
+
