@@ -33,36 +33,59 @@ Zeval_DataSet/
 
 ## 🚀 クイックスタート（教授向け）
 
-### 1. リポジトリのクローン
-```bash
-git clone <リポジトリURL>
-cd Zeval_DataSet/7_direction_ditection
-```
+### 初回セットアップ（1回のみ）
 
-### 2. 仮想環境のセットアップと依存関係のインストール
 ```bash
-# Windows PowerShell
+# 1. リポジトリのクローン
+git clone https://github.com/MASHMARO2718/Zeval_DataSet.git
+cd Zeval_DataSet
+
+# 2. プロジェクトディレクトリへ移動
+cd 7_direction_ditection
+
+# 3. 仮想環境の作成とアクティベート（Windows PowerShell）
 python -m venv venv
 .\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
 
-# macOS/Linux
-python -m venv venv
-source venv/bin/activate
+# 4. 依存パッケージのインストール
 pip install -r requirements.txt
 ```
 
-### 3. ダッシュボードの起動
+### ダッシュボードの起動（2回目以降）
+
 ```bash
+# プロジェクトルートから実行
+cd C:\projects\MOTIONTRACK\Zeval_DataSet\7_direction_ditection
+.\venv\Scripts\Activate.ps1
 python interactive_dashboard.py
 ```
 
-### 4. ブラウザでアクセス
+**または、既に`7_direction_ditection`ディレクトリ内にいる場合：**
+
+```bash
+.\venv\Scripts\Activate.ps1
+python interactive_dashboard.py
+```
+
+### ブラウザでアクセス
+
+ターミナルに以下が表示されたら成功です：
+```
+Dash is running on http://127.0.0.1:8050/
+```
+
+ブラウザで以下のURLを開いてください：
 ```
 http://127.0.0.1:8050/
 ```
 
-**詳細な手順**: `7_direction_ditection/README_FOR_PROFESSOR.md` を参照してください。
+### 停止方法
+
+ターミナルで **`Ctrl + C`** を押してください。
+
+---
+
+**📘 詳細な手順とトラブルシューティング**: `7_direction_ditection/README_FOR_PROFESSOR.md` を参照してください。
 
 ## 📊 主要機能
 
