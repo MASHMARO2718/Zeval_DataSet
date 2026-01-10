@@ -27,6 +27,22 @@ df_detailed = pd.read_csv(output_dir / "detailed_results.csv")
 df_summary = pd.read_csv(output_dir / "frame_camera_summary.csv")
 df_joint = pd.read_csv(output_dir / "joint_summary.csv")
 
+# 相関行列データも読み込み
+corr_dir = config.OUTPUT_DIR / "correlation_analysis"
+try:
+    df_corr_theta = pd.read_csv(corr_dir / "correlation_matrix_theta.csv", index_col=0)
+    df_corr_psi = pd.read_csv(corr_dir / "correlation_matrix_psi.csv", index_col=0)
+    df_corr_3d = pd.read_csv(corr_dir / "correlation_matrix_3d_norm.csv", index_col=0)
+    df_high_theta = pd.read_csv(corr_dir / "high_correlation_pairs_theta.csv")
+    df_high_psi = pd.read_csv(corr_dir / "high_correlation_pairs_psi.csv")
+    df_high_3d = pd.read_csv(corr_dir / "high_correlation_pairs_3d_norm.csv")
+    correlation_data_available = True
+    print(f"Loaded correlation matrices: theta={df_corr_theta.shape}, psi={df_corr_psi.shape}, 3d={df_corr_3d.shape}")
+except FileNotFoundError as e:
+    print(f"Warning: Correlation data not found: {e}")
+    print("Run 'python compute_correlation.py' to generate correlation analysis")
+    correlation_data_available = False
+
 # GroundTruthデータも読み込み（ボット位置表示用）
 loader = DataLoader()
 gt_df = loader.load_ground_truth()
@@ -239,6 +255,61 @@ app.layout = dbc.Container([
             ])
         ], width=12),
     ], className="mb-4"),
+    
+    # 相関分析セクション
+    dbc.Row([
+        dbc.Col([
+            html.H3("📊 関節間エラー相関分析", className="text-center mb-3")
+        ])
+    ]) if correlation_data_available else html.Div(),
+    
+    dbc.Row([
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader("🔥 相関行列ヒートマップ"),
+                dbc.CardBody([
+                    dbc.Tabs([
+                        dbc.Tab(
+                            dcc.Graph(id='correlation-heatmap-theta', style={'height': '600px'}),
+                            label="θ (XY平面)",
+                            tab_id="tab-theta"
+                        ),
+                        dbc.Tab(
+                            dcc.Graph(id='correlation-heatmap-psi', style={'height': '600px'}),
+                            label="ψ (XZ平面)",
+                            tab_id="tab-psi"
+                        ),
+                        dbc.Tab(
+                            dcc.Graph(id='correlation-heatmap-3d', style={'height': '600px'}),
+                            label="3D誤差ノルム",
+                            tab_id="tab-3d"
+                        ),
+                    ], id='correlation-tabs', active_tab='tab-theta')
+                ])
+            ])
+        ], width=12)
+    ], className="mb-4") if correlation_data_available else html.Div(),
+    
+    dbc.Row([
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader("⚡ 高相関関節ペア (|r| > 0.7)"),
+                dbc.CardBody([
+                    dbc.Tabs([
+                        dbc.Tab([
+                            html.Div(id='high-corr-table-theta')
+                        ], label="θ (XY平面)", tab_id="tab-theta-table"),
+                        dbc.Tab([
+                            html.Div(id='high-corr-table-psi')
+                        ], label="ψ (XZ平面)", tab_id="tab-psi-table"),
+                        dbc.Tab([
+                            html.Div(id='high-corr-table-3d')
+                        ], label="3D誤差ノルム", tab_id="tab-3d-table"),
+                    ], id='high-corr-tabs', active_tab='tab-theta-table')
+                ])
+            ])
+        ], width=12)
+    ], className="mb-4") if correlation_data_available else html.Div(),
     
     # Store component for storing selected camera state
     dcc.Store(id='selected-camera-store', data='CapturedFrames_-1.0_0.5_-3.0'),
@@ -936,6 +1007,177 @@ def update_time_series(camera):
     )
     
     return fig
+
+
+# ========== 相関分析コールバック ==========
+
+if correlation_data_available:
+    # θの相関ヒートマップ
+    @app.callback(
+        Output('correlation-heatmap-theta', 'figure'),
+        Input('correlation-tabs', 'active_tab')
+    )
+    def update_correlation_heatmap_theta(active_tab):
+        """θ（XY平面）の相関ヒートマップ"""
+        if active_tab != 'tab-theta':
+            return go.Figure()
+        
+        fig = go.Figure(data=go.Heatmap(
+            z=df_corr_theta.values,
+            x=df_corr_theta.columns,
+            y=df_corr_theta.index,
+            colorscale='RdBu',
+            zmid=0,
+            zmin=-1,
+            zmax=1,
+            text=df_corr_theta.values,
+            texttemplate='%{text:.2f}',
+            textfont={"size": 10},
+            colorbar=dict(title='相関係数')
+        ))
+        
+        fig.update_layout(
+            title='関節間エラー相関行列 - θ (XY平面)',
+            xaxis=dict(title='関節', tickangle=45),
+            yaxis=dict(title='関節'),
+            height=600
+        )
+        
+        return fig
+    
+    
+    # ψの相関ヒートマップ
+    @app.callback(
+        Output('correlation-heatmap-psi', 'figure'),
+        Input('correlation-tabs', 'active_tab')
+    )
+    def update_correlation_heatmap_psi(active_tab):
+        """ψ（XZ平面）の相関ヒートマップ"""
+        if active_tab != 'tab-psi':
+            return go.Figure()
+        
+        fig = go.Figure(data=go.Heatmap(
+            z=df_corr_psi.values,
+            x=df_corr_psi.columns,
+            y=df_corr_psi.index,
+            colorscale='RdBu',
+            zmid=0,
+            zmin=-1,
+            zmax=1,
+            text=df_corr_psi.values,
+            texttemplate='%{text:.2f}',
+            textfont={"size": 10},
+            colorbar=dict(title='相関係数')
+        ))
+        
+        fig.update_layout(
+            title='関節間エラー相関行列 - ψ (XZ平面)',
+            xaxis=dict(title='関節', tickangle=45),
+            yaxis=dict(title='関節'),
+            height=600
+        )
+        
+        return fig
+    
+    
+    # 3Dノルムの相関ヒートマップ
+    @app.callback(
+        Output('correlation-heatmap-3d', 'figure'),
+        Input('correlation-tabs', 'active_tab')
+    )
+    def update_correlation_heatmap_3d(active_tab):
+        """3D誤差ノルムの相関ヒートマップ"""
+        if active_tab != 'tab-3d':
+            return go.Figure()
+        
+        fig = go.Figure(data=go.Heatmap(
+            z=df_corr_3d.values,
+            x=df_corr_3d.columns,
+            y=df_corr_3d.index,
+            colorscale='RdBu',
+            zmid=0,
+            zmin=-1,
+            zmax=1,
+            text=df_corr_3d.values,
+            texttemplate='%{text:.2f}',
+            textfont={"size": 10},
+            colorbar=dict(title='相関係数')
+        ))
+        
+        fig.update_layout(
+            title='関節間エラー相関行列 - 3D誤差ノルム',
+            xaxis=dict(title='関節', tickangle=45),
+            yaxis=dict(title='関節'),
+            height=600
+        )
+        
+        return fig
+    
+    
+    # 高相関ペアテーブル（θ）
+    @app.callback(
+        Output('high-corr-table-theta', 'children'),
+        Input('high-corr-tabs', 'active_tab')
+    )
+    def update_high_corr_table_theta(active_tab):
+        """θの高相関ペアテーブル"""
+        if active_tab != 'tab-theta-table':
+            return html.Div()
+        
+        if len(df_high_theta) == 0:
+            return html.P("高相関ペア (|r| > 0.7) は見つかりませんでした。", className="text-muted")
+        
+        return dbc.Table.from_dataframe(
+            df_high_theta.round(3),
+            striped=True,
+            bordered=True,
+            hover=True,
+            size='sm'
+        )
+    
+    
+    # 高相関ペアテーブル（ψ）
+    @app.callback(
+        Output('high-corr-table-psi', 'children'),
+        Input('high-corr-tabs', 'active_tab')
+    )
+    def update_high_corr_table_psi(active_tab):
+        """ψの高相関ペアテーブル"""
+        if active_tab != 'tab-psi-table':
+            return html.Div()
+        
+        if len(df_high_psi) == 0:
+            return html.P("高相関ペア (|r| > 0.7) は見つかりませんでした。", className="text-muted")
+        
+        return dbc.Table.from_dataframe(
+            df_high_psi.round(3),
+            striped=True,
+            bordered=True,
+            hover=True,
+            size='sm'
+        )
+    
+    
+    # 高相関ペアテーブル（3D）
+    @app.callback(
+        Output('high-corr-table-3d', 'children'),
+        Input('high-corr-tabs', 'active_tab')
+    )
+    def update_high_corr_table_3d(active_tab):
+        """3Dの高相関ペアテーブル"""
+        if active_tab != 'tab-3d-table':
+            return html.Div()
+        
+        if len(df_high_3d) == 0:
+            return html.P("高相関ペア (|r| > 0.7) は見つかりませんでした。", className="text-muted")
+        
+        return dbc.Table.from_dataframe(
+            df_high_3d.round(3),
+            striped=True,
+            bordered=True,
+            hover=True,
+            size='sm'
+        )
 
 
 if __name__ == '__main__':
