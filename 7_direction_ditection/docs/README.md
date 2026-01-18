@@ -106,6 +106,7 @@ docs/
 | `coordinate_transform_plan.md` | 座標変換の初期計画書 | 実装完了済み |
 | `CURRENT_LOGIC.md` | 初期のロジック説明 | 他のドキュメントに統合済み |
 | `IMPLEMENTATION_COMPLETE.md` | 実装完了報告 | 参考情報 |
+| `correlation_design.md` | 相関分析の設計ドキュメント | scripts/compute_correlation.pyとして実装済み |
 | `QUICKSTART.md` | 古いクイックスタート | README.mdに統合済み |
 | `README_old.md` | 古いREADME | README.mdに更新済み |
 
