@@ -83,17 +83,33 @@ cd 7_direction_ditection
 **ディレクトリ構造の確認**:
 ```
 7_direction_ditection/
+├── interactive_dashboard.py     # 🚀 メイン: ダッシュボード起動
 ├── config.py                    # 設定ファイル
-├── interactive_dashboard.py     # ダッシュボード本体
-├── process_all_data.py          # データ一括処理
-├── compute_correlation.py       # 相関分析
 ├── requirements.txt             # Python依存パッケージ
+│
+├── scripts/                     # データ処理・ユーティリティ
+│   ├── process_all_data.py     # 全データ一括処理
+│   ├── compute_correlation.py  # 相関分析
+│   ├── data_loader.py          # データ読み込み
+│   ├── coordinate_transform.py # 座標変換
+│   └── ...
+│
+├── tests/                       # テストスクリプト
+│   ├── run_all_tests.py        # テスト一括実行
+│   ├── test_01_load_data.py
+│   └── ...
+│
+├── docs/                        # ドキュメント
+│   ├── paper/                  # 論文執筆用
+│   └── archive/                # 古いドキュメント
+│
 ├── data/                        # 入力データ
 │   ├── 1_GroundTruth/
 │   └── 2_medidapipe_proccesed/
-├── output/                      # 処理結果
-├── scripts/                     # ユーティリティスクリプト
-└── tests/                       # テストスクリプト
+│
+└── output/                      # 処理結果
+    ├── processed_data/         # CSV結果
+    └── correlation_analysis/   # 相関分析結果
 ```
 
 ---
@@ -627,13 +643,13 @@ correlation_matrix = np.corrcoef(error_matrix)
 - 角度差の計算（arctan2ベース）
 - 3D距離の計算
 
-#### `process_all_data.py`
+#### `scripts/process_all_data.py`
 - 全フレーム・全カメラを一括処理
 - プログレスバー表示（tqdm）
 - 詳細結果、サマリ、関節別統計をCSV出力
 - 処理時間: 約3-5分（データ量による）
 
-#### `compute_correlation.py`
+#### `scripts/compute_correlation.py`
 - 詳細結果CSVから相関行列を計算
 - ヒートマップ生成（seaborn）
 - 高相関ペア（>0.7）を抽出・保存
@@ -647,10 +663,10 @@ correlation_matrix = np.corrcoef(error_matrix)
 
 ```bash
 # すべてのフレーム・カメラのデータを再処理
-python process_all_data.py
+python scripts/process_all_data.py
 
 # 相関分析を再実行
-python compute_correlation.py
+python scripts/compute_correlation.py
 
 # ダッシュボードを起動
 python interactive_dashboard.py
@@ -705,7 +721,7 @@ ls output/joint_level_summary.csv
 
 3. **データの再処理**:
 ```bash
-python process_all_data.py
+python scripts/process_all_data.py
 ```
 
 ---
@@ -800,8 +816,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 **A**: 
 - データ読み込み: 約10秒
-- 全データ処理（`process_all_data.py`）: 約3-5分
-- 相関分析（`compute_correlation.py`）: 約30秒
+- 全データ処理（`scripts/process_all_data.py`）: 約3-5分
+- 相関分析（`scripts/compute_correlation.py`）: 約30秒
 - ダッシュボード起動: 約5秒
 
 合計で初回セットアップは約10分程度です。2回目以降は処理済みデータを読み込むだけなので数秒で起動します。
@@ -829,7 +845,7 @@ XZ平面上に1メートル間隔でグリッド配置し、ボット（原点�
 
 1. GroundTruthのCSVを`data/1_GroundTruth/`に追加
 2. MediaPipeのCSVを`data/2_medidapipe_proccesed/`の適切なY範囲ディレクトリに追加
-3. `python process_all_data.py`で再処理
+3. `python scripts/process_all_data.py`で再処理
 4. `python interactive_dashboard.py`でダッシュボードを起動
 
 ---
